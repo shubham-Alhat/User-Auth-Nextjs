@@ -94,3 +94,5 @@ src/
 ### Starting with frontend stuff.
 
 1. `page.tsx` file from **src > app > signup**
+
+Learn about **ctr + D** to select all same words and change it at once
