@@ -16,7 +16,10 @@ export async function POST(request: NextRequest) {
     const user = await User.findOne({ email });
 
     if (user) {
-      return NextResponse.json({ error: "User already exist", status: 400 });
+      return NextResponse.json(
+        { error: "User already exists" },
+        { status: 400 }
+      );
     }
 
     // hash the password
@@ -32,16 +35,14 @@ export async function POST(request: NextRequest) {
 
     const savedUser = await newUser.save();
 
-    // return the response
-    return NextResponse.json({
-      message: "User saved in db successfully",
-      data: savedUser,
-      status: 201,
-    });
+    return NextResponse.json(
+      {
+        message: "User saved in db successfully",
+        data: savedUser,
+      },
+      { status: 201 }
+    );
   } catch (error: any) {
-    return NextResponse.json({
-      error: error.message,
-      status: 500,
-    });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
