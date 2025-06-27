@@ -96,3 +96,43 @@ src/
 1. `page.tsx` file from **src > app > signup**
 
 Learn about **ctr + D** to select all same words and change it at once
+
+---
+
+### Error handling.
+
+Axios doesn't just throw new Error(...) like fetch() does. — it throws a custom object that includes this structure:
+
+```typescript
+{
+  message: "...",
+  response: {
+    status: 400,
+    data: {
+      error: "User already exists" // 👈 this came from your API backend
+    }
+  },
+  ...
+}
+```
+
+In backend we are sending this
+
+```typescript
+return NextResponse.json({ error: "User already exists" }, { status: 400 });
+```
+
+Axios on frontend receives this and throws an error
+
+That error contains:
+
+```typescript
+{
+  response: {
+    status: 400,
+    data: {
+      error: "User already exists" // this is passed to toast
+    }
+  }
+}
+```

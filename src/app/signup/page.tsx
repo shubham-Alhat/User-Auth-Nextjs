@@ -3,11 +3,12 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import toast from "react-hot-toast";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import { toast } from "sonner";
+import Loader from "@/components/Loader";
 
 export default function signUpPage() {
   const router = useRouter();
+
   const [user, setUser] = React.useState({
     email: "",
     username: "",
@@ -15,17 +16,31 @@ export default function signUpPage() {
   });
 
   const [buttonDisabled, setButtonDisabled] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const onSignUp = async () => {
     try {
+      setLoading(true);
       const response = await axios.post("/api/users/signup", user);
 
-      console.log(response, "\n Sign Up success");
       toast.success("Signed up successfully!");
+
+      // Clear input fields
+      setUser({
+        email: "",
+        username: "",
+        password: "",
+      });
 
       router.push("/login");
     } catch (error: any) {
+      // Clear input fields
+      setUser({
+        email: "",
+        username: "",
+        password: "",
+      });
+
       console.log("Sign Up failed", error);
       // Check for backend error message
       if (error.response && error.response.data && error.response.data.error) {
@@ -33,6 +48,8 @@ export default function signUpPage() {
       } else {
         toast.error("Something went wrong while Sign Up");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -65,28 +82,16 @@ export default function signUpPage() {
               placeholder="email"
               className="text-md pl-4 py-3 w-full pr-4 border-[0.5px] border-solid border-gray-700 rounded-md outline-none"
             />
-            <div className="relative">
-              <input
-                id="password"
-                required
-                type={showPassword ? "text" : "password"}
-                value={user.password}
-                onChange={(e) => setUser({ ...user, password: e.target.value })}
-                placeholder="password"
-                className="text-md pl-4 py-3 w-full pr-4 border-[0.5px] border-solid border-gray-700 rounded-md outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 cursor-pointer"
-              >
-                {showPassword ? (
-                  <AiOutlineEyeInvisible size={20} />
-                ) : (
-                  <AiOutlineEye size={20} />
-                )}
-              </button>
-            </div>
+
+            <input
+              id="password"
+              required
+              type="text"
+              value={user.password}
+              onChange={(e) => setUser({ ...user, password: e.target.value })}
+              placeholder="password"
+              className="text-md pl-4 py-3 w-full pr-4 border-[0.5px] border-solid border-gray-700 rounded-md outline-none"
+            />
 
             <input
               id="username"
@@ -103,13 +108,13 @@ export default function signUpPage() {
             <button
               disabled={buttonDisabled}
               onClick={onSignUp}
-              className={`w-full py-2 rounded-md text-xl text-white bg-[rgb(67,132,181)] duration-150 transform ${
+              className={`w-full flex justify-center items-center py-2 rounded-md text-xl text-white bg-[rgb(67,132,181)] duration-150 transform ${
                 buttonDisabled
                   ? "opacity-70 cursor-not-allowed"
                   : "cursor-pointer"
               }`}
             >
-              Sign Up
+              {loading ? <Loader /> : "Sign Up"}
             </button>
           </div>
           <p>

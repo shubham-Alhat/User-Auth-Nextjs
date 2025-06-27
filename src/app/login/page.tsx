@@ -3,15 +3,40 @@ import Link from "next/link";
 import React from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { useState } from "react";
+import Loader from "@/components/Loader";
+import { toast } from "sonner";
 
 export default function loginPage() {
+  const router = useRouter();
   const [user, setUser] = React.useState({
     email: "",
     password: "",
   });
 
-  const onLogin = async () => {
-    // logic as it will talk to db
+  const [loading, setLoading] = useState(false);
+
+  const onLogin = async (event: React.FormEvent) => {
+    event.preventDefault(); // Prevent page reload
+    try {
+      setLoading(true);
+
+      const response = await axios.post("/api/users/login", user);
+
+      console.log(response);
+
+      toast.success("User Logged In Successfully");
+      router.push("/profile");
+    } catch (error: any) {
+      console.log("Login Error", error.message);
+      if (error.response && error.response.data && error.response.data.error) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error("Something went wrong while login");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -20,7 +45,7 @@ export default function loginPage() {
         <div className="text-center mx-4 p-3 max-w-[400px] space-y-3">
           <h1 className="text-3xl font-semibold mb-3">Login</h1>
 
-          <form action="#" className="space-y-2.5">
+          <form onSubmit={onLogin} className="space-y-2.5">
             <input
               id="email"
               required
@@ -43,11 +68,10 @@ export default function loginPage() {
             <hr className="m-3" />
 
             <button
-              onSubmit={onLogin}
               type="submit"
-              className="w-full py-2 rounded-md text-xl text-white bg-[rgb(67,132,181)] cursor-pointer duration-150 transform"
+              className={`w-full flex justify-center items-center py-2 rounded-md text-xl text-white bg-[rgb(67,132,181)] duration-150 transform cursor-pointer`}
             >
-              Login to account
+              {loading ? <Loader /> : "Login to account"}
             </button>
           </form>
 
